@@ -19,7 +19,7 @@ LiDAR byte stream
    object_detector
 ```
 
-The parser currently accepts `data_reg` and `data_valid` as inputs. The UART receiver is included as a separate module but is not yet instantiated or connected inside `lidar_top`.
+The top level now accepts the LDS-02 UART `rx` signal and instantiates the UART receiver internally. The UART receiver produces `data_reg` and `data_valid` for the packet parser.
 
 ## Repository layout
 
@@ -41,14 +41,15 @@ rtl/
 |---|---:|---:|---|
 | `clk` | input | 1 | System clock |
 | `reset` | input | 1 | Synchronous active-high reset |
-| `data_reg` | input | 8 | Received LiDAR byte |
-| `data_valid` | input | 1 | One-cycle pulse indicating a valid byte |
+| `rx` | input | 1 | LDS-02 UART TX signal connected to the FPGA RX input |
 | `angles` | output | 192 | Twelve 16-bit angles |
 | `angles_valid` | output | 1 | Angle output valid pulse |
 | `detection_mask` | output | 12 | One bit per detected object/sample |
 | `detection_valid` | output | 1 | Detection output valid pulse |
 
 The packed arrays use sample 0 in bits `[15:0]`, sample 1 in bits `[31:16]`, and so on.
+
+The UART receiver is configured for 115200 baud, 8 data bits, no parity, and 1 stop bit using the Arty A7 100 MHz clock.
 
 ## LiDAR packet format
 
@@ -110,7 +111,7 @@ iverilog -g2012 -s lidar_top -o /tmp/fpga_lidar_sim \
 
 ## Next steps
 
-1. Connect `uart_rx` outputs to `lidar_top` so the design can receive a physical UART LiDAR stream.
-2. Add a full-system testbench covering the parser, angle calculator, and object detector together.
-3. Confirm the UART counter values against the FPGA clock frequency and LiDAR baud rate.
+1. Add an Arty A7 `.xdc` file for the 100 MHz clock, LDS-02 RX input, and detection outputs.
+2. Confirm the UART counter values against the FPGA clock frequency and LiDAR baud rate.
+3. Connect the detection outputs to LEDs, GPIO, or an on-chip logic analyzer.
 4. Consider pipelining the angle calculation because division by 11 may use significant FPGA resources.

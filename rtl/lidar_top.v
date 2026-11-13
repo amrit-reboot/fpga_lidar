@@ -2,8 +2,7 @@
 module lidar_top (
     input wire clk,
     input wire reset,
-    input wire [7:0] data_reg,
-    input wire data_valid,
+    input wire rx,
 
     output wire [191:0] angles,
     output wire angles_valid,
@@ -20,6 +19,17 @@ module lidar_top (
     wire [15:0] angle_span;
 
     reg [191:0] distances_aligned;
+    wire [7:0] data_reg;
+    wire data_valid;
+
+    // LDS-02 UART receiver: 115200 baud, 8-N-1 at a 100 MHz clock.
+    uart_rx uart_rx_inst (
+        .clk(clk),
+        .reset(reset),
+        .rx(rx),
+        .data_reg(data_reg),
+        .data_valid(data_valid)
+    );
 
     // Packet parser
     lsd02_parser parser_inst (

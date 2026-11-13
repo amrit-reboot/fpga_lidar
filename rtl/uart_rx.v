@@ -2,7 +2,9 @@
 module uart_rx (
     input wire clk,
     input wire reset,
-    input wire rx
+    input wire rx,
+    output reg [7:0] data_reg,
+    output reg data_valid
 );
 
     // FSM state definitions
@@ -14,9 +16,7 @@ module uart_rx (
     // Current state register
     reg [1:0] state;
     reg [9:0] q;
-    reg [7:0] data_reg;
     reg [2:0] bit_index;
-    reg data_valid;
 
     localparam HALF_BIT = 433;
     localparam FULL_BIT = 867;
